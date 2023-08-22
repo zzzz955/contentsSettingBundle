@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QCalendarWidget, QVBoxLayout, QPushButton, QLineEdit, QGridLayout, QLabel, QTableWidget
+from PyQt5.QtWidgets import QDialog, QCalendarWidget, QVBoxLayout, QPushButton, QLineEdit, QGridLayout, QTableWidget, QMessageBox
 from PyQt5.QtCore import Qt, QDate
 from PyQt5.QtGui import QIntValidator
 
@@ -40,6 +40,7 @@ class calendar_dialog(QDialog):
 class colosseum_val(QDialog):
     def __init__(self, main_window):
         super().__init__()
+        self.setGeometry(500,100,500,500)
         self.setWindowTitle("콜로세움 추가 정보 입력")
         self.main_window = main_window
         self.table_widget = QTableWidget()
@@ -58,10 +59,10 @@ class colosseum_val(QDialog):
         grid_layout.addWidget(self.reject_btn, 0, 2)
         layout.addWidget(self.table_widget)
 
-        self.table_widget.clear()
         header = ['삭제', '제한 전투력', '서버ID']
         self.table_widget.setColumnCount(len(header))
         self.table_widget.setHorizontalHeaderLabels(header)
+        self.table_widget.resizeColumnsToContents()
 
     def add_row(self):
         del_btn = QPushButton('삭제')
@@ -76,3 +77,26 @@ class colosseum_val(QDialog):
             index = self.table_widget.indexAt(sender.pos())
             row = index.row()
             self.table_widget.removeRow(row)
+
+    def accept(self):
+        try:
+            rows = self.table_widget.rowCount()
+            if rows:
+                for row in range(rows):
+                    cp_min = self.table_widget.item(row, 1)
+                    server_id = self.table_widget.item(row, 2)
+                    if cp_min and server_id is not None:
+                        self.main_window.colosseum_min_cps.append(cp_min.text())
+                        self.main_window.colosseum_server_ids.append(server_id.text())
+                    else:
+                        QMessageBox.warning(self, '경고', '입력 데이터를 확인해 주세요.')
+                        break
+                if len(self.main_window.colosseum_min_cps) and len(self.main_window.colosseum_server_ids) == rows:
+                    super().accept()
+            else:
+                super().reject()
+        except Exception as e:
+            print(e)
+
+    def reject(self):
+        super().reject()
