@@ -1,6 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QCalendarWidget, QVBoxLayout, QPushButton, QLineEdit, QGridLayout, QTableWidget, QMessageBox
 from PyQt5.QtCore import Qt, QDate
-from PyQt5.QtGui import QIntValidator
 
 class calendar_dialog(QDialog):
     def __init__(self, main_window):
@@ -24,16 +23,16 @@ class calendar_dialog(QDialog):
         self.setLayout(layout)
 
     def showDate(self, data):
+        # 선택된 캘린더 데이터 노출
         self.val.setText(data.toString(Qt.ISODate))
 
     def accept(self):
-        try:
-            self.main_window.lineedit2.setText(self.val.text())
-            super().accept()
-        except Exception as e:
-            print(e)
+        # 선택한 날짜 적용 및 다이얼로그 닫기
+        self.main_window.lineedit2.setText(self.val.text())
+        super().accept()
 
     def reject(self):
+        # 반환값 없이 다이얼로그 닫기
         self.val.clear()
         super().reject()
 
@@ -65,6 +64,7 @@ class colosseum_val(QDialog):
         self.table_widget.resizeColumnsToContents()
 
     def add_row(self):
+        # tablewidget의 행 추가
         del_btn = QPushButton('삭제')
         del_btn.clicked.connect(self.del_row)
         row_count = self.table_widget.rowCount()
@@ -72,6 +72,7 @@ class colosseum_val(QDialog):
         self.table_widget.setCellWidget(row_count, 0, del_btn)
 
     def del_row(self):
+        # tablewidget의 행 삭제
         sender = self.sender()
         if isinstance(sender, QPushButton):
             index = self.table_widget.indexAt(sender.pos())
@@ -79,24 +80,22 @@ class colosseum_val(QDialog):
             self.table_widget.removeRow(row)
 
     def accept(self):
-        try:
-            rows = self.table_widget.rowCount()
-            if rows:
-                for row in range(rows):
-                    cp_min = self.table_widget.item(row, 1)
-                    server_id = self.table_widget.item(row, 2)
-                    if cp_min and server_id is not None:
-                        self.main_window.colosseum_min_cps.append(cp_min.text())
-                        self.main_window.colosseum_server_ids.append(server_id.text())
-                    else:
-                        QMessageBox.warning(self, '경고', '입력 데이터를 확인해 주세요.')
-                        break
-                if len(self.main_window.colosseum_min_cps) and len(self.main_window.colosseum_server_ids) == rows:
-                    super().accept()
-            else:
-                super().reject()
-        except Exception as e:
-            print(e)
+        # 테이블 정보 저장 및
+        rows = self.table_widget.rowCount()
+        if rows:
+            for row in range(rows):
+                cp_min = self.table_widget.item(row, 1)
+                server_id = self.table_widget.item(row, 2)
+                if cp_min and server_id is not None:
+                    self.main_window.colosseum_min_cps.append(cp_min.text())
+                    self.main_window.colosseum_server_ids.append(server_id.text())
+                else:
+                    QMessageBox.warning(self, '경고', '입력 데이터를 확인해 주세요.')
+                    break
+            if len(self.main_window.colosseum_min_cps) and len(self.main_window.colosseum_server_ids) == rows:
+                super().accept()
+        else:
+            super().reject()
 
     def reject(self):
         super().reject()

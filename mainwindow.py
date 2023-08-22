@@ -5,7 +5,6 @@ from PyQt5.QtGui import QIcon, QIntValidator
 from qt_material import apply_stylesheet
 import dataframes
 from dialogs import *
-from dataframes import *
 
 class contentsSettingBundle(QMainWindow):
     def __init__(self):
@@ -16,6 +15,7 @@ class contentsSettingBundle(QMainWindow):
         widget.setLayout(layout)
         self.setCentralWidget(widget)
 
+        # 위젯 선언
         frame1 = QFrame(self)
         frame2 = QFrame(self)
         frame3 = QFrame(self)
@@ -24,6 +24,8 @@ class contentsSettingBundle(QMainWindow):
         self.lineedit1.setPlaceholderText("10")
         self.lineedit1.setValidator(QIntValidator())
         label2 = QLabel("<b>시즌 시작 일자 : </b>")
+        label3 = QLabel("<b>이벤트 세팅</b>")
+        label4 = QLabel("<b>전장 콘텐츠 세팅</b>")
         self.lineedit2 = QLineEdit()
         self.lineedit2.setPlaceholderText("YYYY-MM-DD")
         self.lineedit2.setReadOnly(True)
@@ -41,6 +43,7 @@ class contentsSettingBundle(QMainWindow):
         self.content_button7 = QPushButton("명예의 대전장")
         self.exit_button = QPushButton("종료")
 
+        # 레이아웃 세팅
         frame1_gridlayout = QGridLayout()
         frame2_gridlayout = QGridLayout()
         frame3_gridlayout = QGridLayout()
@@ -54,22 +57,25 @@ class contentsSettingBundle(QMainWindow):
 
         layout.addWidget(frame2)
         frame2.setLayout(frame2_gridlayout)
-        frame2_gridlayout.addWidget(self.event_button1, 0, 0)
-        frame2_gridlayout.addWidget(self.event_button2, 0, 1)
-        frame2_gridlayout.addWidget(self.event_button3, 1, 0)
+        frame2_gridlayout.addWidget(label3, 0, 0)
+        frame2_gridlayout.addWidget(self.event_button1, 1, 0)
+        frame2_gridlayout.addWidget(self.event_button2, 1, 1)
+        frame2_gridlayout.addWidget(self.event_button3, 2, 0)
 
         layout.addWidget(frame3)
         frame3.setLayout(frame3_gridlayout)
-        frame3_gridlayout.addWidget(self.content_button1, 0, 0)
-        frame3_gridlayout.addWidget(self.content_button2, 0, 1)
-        frame3_gridlayout.addWidget(self.content_button3, 1, 0)
-        frame3_gridlayout.addWidget(self.content_button4, 1, 1)
-        frame3_gridlayout.addWidget(self.content_button5, 2, 0)
-        frame3_gridlayout.addWidget(self.content_button6, 2, 1)
-        frame3_gridlayout.addWidget(self.content_button7, 3, 0)
+        frame3_gridlayout.addWidget(label4, 0, 0)
+        frame3_gridlayout.addWidget(self.content_button1, 1, 0)
+        frame3_gridlayout.addWidget(self.content_button2, 1, 1)
+        frame3_gridlayout.addWidget(self.content_button3, 2, 0)
+        frame3_gridlayout.addWidget(self.content_button4, 2, 1)
+        frame3_gridlayout.addWidget(self.content_button5, 3, 0)
+        frame3_gridlayout.addWidget(self.content_button6, 3, 1)
+        frame3_gridlayout.addWidget(self.content_button7, 4, 0)
 
         layout.addWidget(self.exit_button)
 
+        # 시그널 세팅
         self.tool_button1.clicked.connect(self.exec_calendar)
         self.event_button1.clicked.connect(self.to_excel_event1)
         self.event_button2.clicked.connect(self.to_excel_event2)
@@ -83,14 +89,17 @@ class contentsSettingBundle(QMainWindow):
         self.content_button7.clicked.connect(self.to_excel_content7)
         self.exit_button.clicked.connect(self.close)
 
+        # 미지원 기능
         self.event_button3.setEnabled(False)
         self.content_button6.setEnabled(False)
         self.content_button7.setEnabled(False)
 
+        # 다이얼로그 클래스 변수 선언
         self.cal = calendar_dialog(self)
         self.colosseum = colosseum_val(self)
 
     def exec_calendar(self):
+        # 캘린더 다이얼로그 호출
         self.cal.exec()
 
     def to_excel_event1(self):
@@ -133,9 +142,19 @@ class contentsSettingBundle(QMainWindow):
         season_id = self.lineedit1.text()
         start_time_info = self.lineedit2.text()
         if season_id and start_time_info:
+            QMessageBox.information(self,'정보', '성물 방어전의 경우 아시아, 유럽, 아메리카 권역 3개의 파일이 일괄 생성 됩니다.'
+                                               '\n예) 파일명 : 성물방어전_시즌10 으로 지정했을 경우 생성되는 파일은 다음과 같습니다.'
+                                               '\n - 성물방어전_시즌10_아시아'
+                                               '\n - 성물방어전_시즌10_유럽'
+                                               '\n - 성물방어전_시즌10_아메리카'
+                                               '\n ※ 생성 예정인 경로에 동일한 파일 명이 존재할 경우 오류가 발생할 수 있습니다.')
             filepath, _ = QFileDialog.getSaveFileName(self, '저장 경로 설정', '', '엑셀 파일(*.xlsx)')
             if filepath:
-                dataframes.monster_defence(filepath, season_id, start_time_info)
+                result = dataframes.monster_defence(filepath, season_id, start_time_info)
+                if result:
+                    answer = QMessageBox.information(self, '알림', '성공적으로 파일 추출을 완료하였습니다. 저장 경로를 열어 보시겠습니까?', QMessageBox.Ok|QMessageBox.No, QMessageBox.Ok)
+                    if answer == QMessageBox.Ok:
+                        os.startfile(os.path.dirname(filepath))
         else:
             QMessageBox.warning(self, '경고', '시즌 번호 및 시즌 시작 일자가 제대로 입력 되었는지 확인해 주세요.')
 
@@ -146,7 +165,11 @@ class contentsSettingBundle(QMainWindow):
         if season_id and start_time_info:
             filepath, _ = QFileDialog.getSaveFileName(self, '저장 경로 설정', '', '엑셀 파일(*.xlsx)')
             if filepath:
-                dataframes.ancient_tournament(filepath, season_id, start_time_info)
+                result = dataframes.ancient_tournament(filepath, season_id, start_time_info)
+                if result:
+                    answer = QMessageBox.information(self, '알림', '성공적으로 파일 추출을 완료하였습니다. 파일을 열어 보시겠습니까?', QMessageBox.Ok|QMessageBox.No, QMessageBox.Ok)
+                    if answer == QMessageBox.Ok:
+                        os.startfile(filepath)
         else:
             QMessageBox.warning(self, '경고', '시즌 번호 및 시즌 시작 일자가 제대로 입력 되었는지 확인해 주세요.')
 
@@ -157,7 +180,11 @@ class contentsSettingBundle(QMainWindow):
         if season_id and start_time_info:
             filepath, _ = QFileDialog.getSaveFileName(self, '저장 경로 설정', '', '엑셀 파일(*.xlsx)')
             if filepath:
-                dataframes.global_fortress_siege(filepath, season_id, start_time_info)
+                result = dataframes.global_fortress_siege(filepath, season_id, start_time_info)
+                if result:
+                    answer = QMessageBox.information(self, '알림', '성공적으로 파일 추출을 완료하였습니다. 파일을 열어 보시겠습니까?', QMessageBox.Ok|QMessageBox.No, QMessageBox.Ok)
+                    if answer == QMessageBox.Ok:
+                        os.startfile(filepath)
         else:
             QMessageBox.warning(self, '경고', '시즌 번호 및 시즌 시작 일자가 제대로 입력 되었는지 확인해 주세요.')
 
@@ -172,7 +199,12 @@ class contentsSettingBundle(QMainWindow):
             if season_id and start_time_info:
                 filepath, _ = QFileDialog.getSaveFileName(self, '저장 경로 설정', '', '엑셀 파일(*.xlsx)')
                 if filepath:
-                    dataframes.single_colosseum(filepath, season_id, start_time_info, self.colosseum_min_cps, self.colosseum_server_ids)
+                    result = dataframes.single_colosseum(filepath, season_id, start_time_info, self.colosseum_min_cps, self.colosseum_server_ids)
+                    if result:
+                        answer = QMessageBox.information(self, '알림', '성공적으로 파일 추출을 완료하였습니다. 파일을 열어 보시겠습니까?',
+                                                         QMessageBox.Ok | QMessageBox.No, QMessageBox.Ok)
+                        if answer == QMessageBox.Ok:
+                            os.startfile(filepath)
             else:
                 QMessageBox.warning(self,'경고', '시즌 번호 및 시즌 시작 일자가 제대로 입력 되었는지 확인해 주세요.')
         self.colosseum.table_widget.clear()
@@ -189,7 +221,12 @@ class contentsSettingBundle(QMainWindow):
             if season_id and start_time_info:
                 filepath, _ = QFileDialog.getSaveFileName(self, '저장 경로 설정', '', '엑셀 파일(*.xlsx)')
                 if filepath:
-                    dataframes.dual_colosseum(filepath, season_id, start_time_info, self.colosseum_min_cps, self.colosseum_server_ids)
+                    result = dataframes.dual_colosseum(filepath, season_id, start_time_info, self.colosseum_min_cps, self.colosseum_server_ids)
+                    if result:
+                        answer = QMessageBox.information(self, '알림', '성공적으로 파일 추출을 완료하였습니다. 파일을 열어 보시겠습니까?',
+                                                         QMessageBox.Ok | QMessageBox.No, QMessageBox.Ok)
+                        if answer == QMessageBox.Ok:
+                            os.startfile(filepath)
             else:
                 QMessageBox.warning(self,'경고', '시즌 번호 및 시즌 시작 일자가 제대로 입력 되었는지 확인해 주세요.')
         self.colosseum.table_widget.clear()

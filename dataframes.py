@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import calendar
 from datetime import datetime, timedelta
@@ -12,7 +13,7 @@ def adena_donation(filepath, season_id, start_time_info):
     col = ['season_id',	'start_time',	'end_time',	'season_status']
     df = pd.DataFrame(columns=col)
 
-    df.loc[0] = ['','','','']
+    df.loc[0] = ['', '', '', '']
     df.loc[1] = ['시즌 아이디', '시작시간', '종료시간', '시즌 상태']
     df.loc[2] = ['', '2022-01-01- 00:00:00', '2022-01-01- 00:00:00', '']
     df.loc[3] = [season_id, start_time, end_time, season_status]
@@ -31,17 +32,16 @@ def global_competition(filepath, season_id, start_time_info):
     type3_end = date + timedelta(hours=22)
     type4_start = date + timedelta(hours=23)
     type4_end = date + timedelta(days=14 ,hours=23, minutes=59)
-
-    data = {
-        'schedule_type': ['','스케줄 타입','',1,2,3,4],
-        'season_id' : ['','시즌 아이디','',season_id,season_id,season_id,season_id],
-        'start_time' : ['','시작시간','2022-01-01 00:00:00', type1_start, type2_start, type3_start, type4_start],
-        'end_time' : ['','종료시간','2022-01-01 00:00:00', type1_end, type2_end, type3_end, type4_end],
-        'start_status' : ['','시작 수행여부',0,0,0,0,0],
-        'end_status' : ['','종료 수행여부',0,0,0,0,0]
-    }
-
-    df = pd.DataFrame(data).applymap(str)
+    col = ['schedule_type',	'season_id',	'start_time',	'end_time',	'start_status',	'end_status']
+    df = pd.DataFrame(columns=col)
+    df.loc[0] = ['','','','','','']
+    df.loc[1] = ['스케줄 타입',	'시즌 아이디',	'시작시간',	'종료시간',	'시작 수행여부',	'종료 수행여부']
+    df.loc[2] = ['','','2022-01-01 00:00:00','2022-01-01 00:00:00', 0, 0]
+    df.loc[3] = [1, season_id, type1_start, type1_end, 0, 0]
+    df.loc[4] = [2, season_id, type2_start, type2_end, 0, 0]
+    df.loc[5] = [3, season_id, type3_start, type3_end, 0, 0]
+    df.loc[6] = [4, season_id, type4_start, type4_end, 0, 0]
+    df = df.applymap(str)
     df.to_excel(filepath, sheet_name="월드 던전 쟁탈전", index=False)
     result = True
     return result
@@ -89,36 +89,43 @@ def ancient_tournament(filepath, season_id, start_time_info):
     return result
 
 def monster_defence(filepath, season_id, start_time_info):
-    date = datetime.strptime(start_time_info, "%Y-%m-%d")
-    start_time = date + timedelta(hours=18)
-    end_time_701 = date + timedelta(days=4 ,hours=22, minutes=59)
-    start_time_702 = date + timedelta(days=6, hours=20)
-    end_time_702 = date + timedelta(days=6 ,hours=21)
-    is_pre_season = 0
-    season_number = season_id
-    matching_group_info_id = 0
-    round = 8
-    enable = 0
-    repeated_time_701 = '{"times":[{ "start_time": "'+ str(start_time) + '", "end_time": "'+str(end_time_701)+'" }]}'
-    repeated_time_702 = '{"times":[{ "start_time": "'+str(start_time_702)+'", "end_time": "'+str(end_time_702)+'" }]}'
-    col = ['start_time','end_time_701',	'end_time_702',	'is_pre_season',	'season_number',	'matching_group_info_id',	'round',	'enable',	'repeated_time_701',	'repeated_time_702']
-    commondf = pd.DataFrame(columns=col)
-    commondf.loc[0] = ['','','','','','','','','','']
-    commondf.loc[1] = ['시작시간','생존전 종료시간','경쟁전 종료시간',	'프리시즌 여부','시즌 번호',	'매칭그룹 Info ID',	'진출 상태',	'활성화 여부',	'생존전 시간 상세',	'경쟁전 시간 상세']
-    commondf.loc[2] = ['2022-01-01 00:00:00',	'2022-01-01 00:00:00',	'2022-01-01 00:00:00','1[O] , 0[X]','','','',				'1[O] , 0[X]',	'{"times":[{ "start_time": "2022-09-02 14:10:00", "end_time": "2022-09-02 14:20:00" }, { "start_time": "2022-09-02 14:30:00", "end_time": "2022-09-02 14:40:00" }]}',	'{"times":[{ "start_time": "2022-09-02 14:10:00", "end_time": "2022-09-02 14:20:00" }, { "start_time": "2022-09-02 14:30:00", "end_time": "2022-09-02 14:40:00" }]}']
-    commondf.loc[3] = [start_time, end_time_701, end_time_702, is_pre_season,season_number,matching_group_info_id,round,enable,repeated_time_701,repeated_time_702]
-    commondf = commondf.applymap(str)
-    df_asia = commondf.copy()
-    df_fr = commondf.copy()
-    df_vi = commondf.copy()
-    df_asia['servers'] = ['','서버목록','1002,1003','1305,1306,1307,1308,1309,1310,1900,1901']
-    df_fr['servers'] = ['', '서버목록', '1002,1003', '1002,1427,1432,1436,1438']
-    df_vi['servers'] = ['', '서버목록', '1002,1003', '1001,1431,1435,1437']
-    df_asia.to_excel("asia_"+filepath, sheet_name="성물방어전 일괄추가",index=False)
-    df_fr.to_excel("fr_"+filepath, sheet_name="성물방어전 일괄추가",index=False)
-    df_vi.to_excel("vi_"+filepath, sheet_name="성물방어전 일괄추가",index=False)
-    result = True
-    return result
+    try:
+        date = datetime.strptime(start_time_info, "%Y-%m-%d")
+        start_time = date + timedelta(hours=18)
+        end_time_701 = date + timedelta(days=4 ,hours=22, minutes=59)
+        start_time_702 = date + timedelta(days=6, hours=20)
+        end_time_702 = date + timedelta(days=6 ,hours=21)
+        is_pre_season = 0
+        season_number = season_id
+        matching_group_info_id = 0
+        round = 8
+        enable = 0
+        repeated_time_701 = '{"times":[{ "start_time": "'+ str(start_time) + '", "end_time": "'+str(end_time_701)+'" }]}'
+        repeated_time_702 = '{"times":[{ "start_time": "'+str(start_time_702)+'", "end_time": "'+str(end_time_702)+'" }]}'
+        col = ['start_time','end_time_701',	'end_time_702',	'is_pre_season',	'season_number',	'matching_group_info_id',	'round',	'enable',	'repeated_time_701',	'repeated_time_702']
+        commondf = pd.DataFrame(columns=col)
+        commondf.loc[0] = ['','','','','','','','','','']
+        commondf.loc[1] = ['시작시간','생존전 종료시간','경쟁전 종료시간',	'프리시즌 여부','시즌 번호',	'매칭그룹 Info ID',	'진출 상태',	'활성화 여부',	'생존전 시간 상세',	'경쟁전 시간 상세']
+        commondf.loc[2] = ['2022-01-01 00:00:00',	'2022-01-01 00:00:00',	'2022-01-01 00:00:00','1[O] , 0[X]','','','',				'1[O] , 0[X]',	'{"times":[{ "start_time": "2022-09-02 14:10:00", "end_time": "2022-09-02 14:20:00" }, { "start_time": "2022-09-02 14:30:00", "end_time": "2022-09-02 14:40:00" }]}',	'{"times":[{ "start_time": "2022-09-02 14:10:00", "end_time": "2022-09-02 14:20:00" }, { "start_time": "2022-09-02 14:30:00", "end_time": "2022-09-02 14:40:00" }]}']
+        commondf.loc[3] = [start_time, end_time_701, end_time_702, is_pre_season,season_number,matching_group_info_id,round,enable,repeated_time_701,repeated_time_702]
+        commondf = commondf.applymap(str)
+        df_asia = commondf.copy()
+        df_fr = commondf.copy()
+        df_vi = commondf.copy()
+        df_asia['servers'] = ['','서버목록','1002,1003','1305,1306,1307,1308,1309,1310,1900,1901']
+        df_fr['servers'] = ['', '서버목록', '1002,1003', '1002,1427,1432,1436,1438']
+        df_vi['servers'] = ['', '서버목록', '1002,1003', '1001,1431,1435,1437']
+        dir_name = os.path.dirname(filepath)
+        base_name = os.path.basename(filepath)
+        file_name, xlsx = os.path.splitext(base_name)
+        dir_file_name = os.path.join(dir_name, file_name)
+        df_asia.to_excel(dir_file_name+"_아시아"+xlsx, sheet_name="성물방어전 일괄추가",index=False)
+        df_fr.to_excel(dir_file_name+"_유럽"+xlsx, sheet_name="성물방어전 일괄추가",index=False)
+        df_vi.to_excel(dir_file_name+"_아메리카"+xlsx, sheet_name="성물방어전 일괄추가",index=False)
+        result = True
+        return result
+    except Exception as e:
+        print(e)
 
 def global_fortress_siege(filepath, season_id, start_time_info):
     date = datetime.strptime(start_time_info, "%Y-%m-%d")
