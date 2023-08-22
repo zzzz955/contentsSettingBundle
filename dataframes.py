@@ -18,6 +18,8 @@ def adena_donation(filepath, season_id, start_time_info):
     df.loc[3] = [season_id, start_time, end_time, season_status]
     df = df.applymap(str)
     df.to_excel(filepath, sheet_name="아데나 기부", index=False)
+    result = True
+    return result
 
 def global_competition(filepath, season_id, start_time_info):
     date = datetime.strptime(start_time_info, "%Y-%m-%d")
@@ -41,6 +43,8 @@ def global_competition(filepath, season_id, start_time_info):
 
     df = pd.DataFrame(data).applymap(str)
     df.to_excel(filepath, sheet_name="월드 던전 쟁탈전", index=False)
+    result = True
+    return result
 
 def ancient_tournament(filepath, season_id, start_time_info):
     date = datetime.strptime(start_time_info, "%Y-%m-%d")
@@ -81,6 +85,8 @@ def ancient_tournament(filepath, season_id, start_time_info):
 
     df = pd.DataFrame(data).applymap(str)
     df.to_excel(filepath, sheet_name="혈맹 고대의 전장", index=False)
+    result = True
+    return result
 
 def monster_defence(filepath, season_id, start_time_info):
     date = datetime.strptime(start_time_info, "%Y-%m-%d")
@@ -111,9 +117,11 @@ def monster_defence(filepath, season_id, start_time_info):
     df_asia.to_excel("asia_"+filepath, sheet_name="성물방어전 일괄추가",index=False)
     df_fr.to_excel("fr_"+filepath, sheet_name="성물방어전 일괄추가",index=False)
     df_vi.to_excel("vi_"+filepath, sheet_name="성물방어전 일괄추가",index=False)
+    result = True
+    return result
 
-def global_fortress_siege(filepath, season_id, start_time):
-    date = datetime.strptime(start_time, "%Y-%m-%d")
+def global_fortress_siege(filepath, season_id, start_time_info):
+    date = datetime.strptime(start_time_info, "%Y-%m-%d")
     application_start_time= date + timedelta(hours=22, minutes=30)
     application_end_time= date + timedelta(days=1, hours=12)
     group_stage_8_start_time= date + timedelta(days=1, hours=20, minutes=5)
@@ -137,4 +145,46 @@ def global_fortress_siege(filepath, season_id, start_time):
                  group_stage_2_end_time, total_schd_end_time]
     df = df.applymap(str)
     df.to_excel(filepath, sheet_name="전서버 요새전",index=False)
+    result = True
+    return result
+
+def single_colosseum(filepath, season_id, start_time_info, min_cps, server_ids):
+    date = datetime.strptime(start_time_info, "%Y-%m-%d")
+    season_number = season_id
+    limit_battle_point = min_cps
+    servers = server_ids
+    start_time = date + timedelta(hours=20)
+    end_time = date + timedelta(hours=21)
+    is_dual = ''
+    start_round = 64
+    col = ['season_number',	'limit_battle_point',	'servers',	'start_time',	'end_time',	'is_dual',	'start_round']
+    df = pd.DataFrame(columns=col)
+    df.loc[0] = ['','','','','','','']
+    df.loc[1] = ['시즌 번호',	'제한 전투력',	'서버목록',	'시작시간',	'종료시간',	'듀얼콜로세움 여부', '시작 라운드']
+    for i in range(len(limit_battle_point)):
+        df.loc[i+2] = [season_number, limit_battle_point[i], servers[i], start_time, end_time, is_dual, start_round]
+    df = df.applymap(str)
+    df.to_excel(filepath, sheet_name='string.colosseum_period', index=False)
+    result = True
+    return result
+
+def dual_colosseum(filepath, season_id, start_time_info, min_cps, server_ids):
+    date = datetime.strptime(start_time_info, "%Y-%m-%d")
+    season_number = season_id
+    limit_battle_point = min_cps
+    servers = server_ids
+    start_time = date + timedelta(hours=20)
+    end_time = date + timedelta(hours=22)
+    is_dual = 1
+    start_round = 32
+    col = ['season_number',	'limit_battle_point',	'servers',	'start_time',	'end_time',	'is_dual',	'start_round']
+    df = pd.DataFrame(columns=col)
+    df.loc[0] = ['','','','','','','']
+    df.loc[1] = ['시즌 번호',	'제한 전투력',	'서버목록',	'시작시간',	'종료시간',	'듀얼콜로세움 여부', '시작 라운드']
+    for i in range(len(limit_battle_point)):
+        df.loc[i+2] = [season_number, limit_battle_point[i], servers[i], start_time, end_time, is_dual, start_round]
+    df = df.applymap(str)
+    df.to_excel(filepath, sheet_name='string.colosseum_period', index=False)
+    result = True
+    return result
 
