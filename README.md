@@ -10,3 +10,13 @@
 
 # dataframes.py
 데이터프레임, 시간 연산등 주어진 데이터를 가공하고 엑셀 파일로 추출하기 위한 모듈
+
+# custom.xml
+qt_material 모듈의 테마로 GUI 변경을 위한 파일
+venv\Lib\site-packages\qt_material\themes내 위치 필요
+
+# requiremodules.txt
+설치가 필요한 모듈의 집합, 가상환경 생성 후 pip install 필요
+
+# google-calendar.png
+QToolbutton 위젯의 아이콘으로 활용
