@@ -1,5 +1,6 @@
-from PyQt5.QtWidgets import QDialog, QCalendarWidget, QVBoxLayout, QPushButton, QLineEdit, QGridLayout, QTableWidget, QMessageBox
+from PyQt5.QtWidgets import QDialog, QCalendarWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QGridLayout, QTableWidget, QMessageBox
 from PyQt5.QtCore import Qt, QDate
+from PyQt5.QtGui import QIntValidator
 
 class calendar_dialog(QDialog):
     def __init__(self, main_window):
@@ -11,15 +12,18 @@ class calendar_dialog(QDialog):
         self.cal.setGridVisible(True)
         self.cal.clicked[QDate].connect(self.showDate)
         self.val = QLineEdit()
+        self.val.setReadOnly(True)
         self.accept_btn = QPushButton("적용")
         self.accept_btn.clicked.connect(self.accept)
         self.reject_btn = QPushButton("취소")
         self.reject_btn.clicked.connect(self.reject)
         layout = QVBoxLayout()
+        h_layout = QHBoxLayout()
         layout.addWidget(self.cal)
         layout.addWidget(self.val)
-        layout.addWidget(self.accept_btn)
-        layout.addWidget(self.reject_btn)
+        layout.addLayout(h_layout)
+        h_layout.addWidget(self.accept_btn)
+        h_layout.addWidget(self.reject_btn)
         self.setLayout(layout)
 
     def showDate(self, data):
@@ -67,9 +71,16 @@ class colosseum_val(QDialog):
         # tablewidget의 행 추가
         del_btn = QPushButton('삭제')
         del_btn.clicked.connect(self.del_row)
+        lineedit1 = QLineEdit()
+        lineedit2 = QLineEdit()
+        lineedit1.setValidator(QIntValidator())
+        lineedit2.setValidator(QIntValidator())
+
         row_count = self.table_widget.rowCount()
         self.table_widget.insertRow(row_count)
         self.table_widget.setCellWidget(row_count, 0, del_btn)
+        self.table_widget.setCellWidget(row_count, 1, lineedit1)
+        self.table_widget.setCellWidget(row_count, 2, lineedit2)
 
     def del_row(self):
         # tablewidget의 행 삭제
@@ -84,9 +95,9 @@ class colosseum_val(QDialog):
         rows = self.table_widget.rowCount()
         if rows:
             for row in range(rows):
-                cp_min = self.table_widget.item(row, 1)
-                server_id = self.table_widget.item(row, 2)
-                if cp_min and server_id is not None:
+                cp_min = self.table_widget.cellWidget(row, 1)
+                server_id = self.table_widget.cellWidget(row, 2)
+                if cp_min.text() and server_id.text():
                     self.main_window.colosseum_min_cps.append(cp_min.text())
                     self.main_window.colosseum_server_ids.append(server_id.text())
                 else:
@@ -95,7 +106,11 @@ class colosseum_val(QDialog):
             if len(self.main_window.colosseum_min_cps) and len(self.main_window.colosseum_server_ids) == rows:
                 super().accept()
         else:
+            self.main_window.colosseum_min_cps = []
+            self.main_window.colosseum_server_ids = []
             super().reject()
 
     def reject(self):
+        self.main_window.colosseum_min_cps = []
+        self.main_window.colosseum_server_ids = []
         super().reject()
